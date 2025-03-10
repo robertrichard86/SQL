@@ -1,97 +1,19 @@
-ALTER TABLE Customers
-CHANGE COLUMN last_name LastName VARCHAR(50),
-CHANGE COLUMN first_name FirstName VARCHAR(50);
+mysql> CREATE DATABASE novo_wind;
+Query OK, 1 row affected (0.01 sec)
 
------------------------------------------------------------
+mysql> USE novo_wind;
+Database changed
 
-UPDATE Customers
-SET FullName = CONCAT(FirstName, ' ', LastName);
+-----------------------------------------------------
 
------------------------------------------------------------
+DROP TABLE IF EXISTS EmployeeTerritory;
 
-UPDATE Customers
-SET business_phone = REPLACE(REPLACE(REPLACE(business_phone, '(', ''), ')', ''), '-', ''),
-    home_phone = REPLACE(REPLACE(REPLACE(home_phone, '(', ''), ')', ''), '-', ''),
-    mobile_phone = REPLACE(REPLACE(REPLACE(mobile_phone, '(', ''), ')', ''), '-', '');
-
------------------------------------------------------------
-
-ALTER TABLE Customers
-ADD COLUMN FullAddress VARCHAR(255);
-
-UPDATE Customers
-SET FullAddress = CONCAT(
-    address, ', ', 
-    city, ', ', 
-    state_province, ' ', 
-    zip_postal_code, ', ', 
-    country_region
-);
-
------------------------------------------------------------
-
-ALTER TABLE Customers
-ADD COLUMN HasEmail BOOLEAN;
-
-UPDATE Customers
-SET HasEmail = CASE
-    WHEN email_address IS NULL OR email_address = '' THEN FALSE
-    ELSE TRUE
-END;
-
------------------------------------------------------------
-
-CREATE TABLE CustomerCountByCity AS
-SELECT 
-    city, 
-    COUNT(*) AS CustomerCount
-FROM 
-    Customers
-GROUP BY 
-    city;
-
------------------------------------------------------------
-
--- Criar tabela de endereços
-CREATE TABLE Addresses (
-    AddressID INT PRIMARY KEY AUTO_INCREMENT,
-    CustomerID INT,
-    Address TEXT,
-    City VARCHAR(50),
-    StateProvince VARCHAR(50),
-    ZipPostalCode VARCHAR(15),
-    CountryRegion VARCHAR(50),
-    FOREIGN KEY (CustomerID) REFERENCES Customers(id)
-);
-
--- Inserir dados de endereço na nova tabela
-INSERT INTO Addresses (CustomerID, Address, City, StateProvince, ZipPostalCode, CountryRegion)
-SELECT 
-    id, 
-    address, 
-    city, 
-    state_province, 
-    zip_postal_code, 
-    country_region
-FROM 
-    Customers;
-
--- Remover colunas de endereço da tabela Customers
-ALTER TABLE Customers
-DROP COLUMN address,
-DROP COLUMN city,
-DROP COLUMN state_province,
-DROP COLUMN zip_postal_code,
-DROP COLUMN country_region;
-
------------------------------------------------------------
-
-SELECT 
-    order_id, 
-    product_id,
-    unit_price, 
-    quantity, 
-    discount
-FROM 
-    `order_details`;
-
+CREATE TABLE EmployeeTerritory (
+  employeeId INT NOT NULL,
+  territoryId VARCHAR(20) NOT NULL,
+  PRIMARY KEY (employeeId, territoryId),
+  FOREIGN KEY (employeeId)
+      REFERENCES Employee(employeeId),
+  FOREIGN KEY (territoryId)
+      REFERENCES Territory(territoryId)
+) ENGINE=INNODB;
